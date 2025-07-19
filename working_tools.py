@@ -1,48 +1,54 @@
 import os
-# import openai
+import json
+from openai import OpenAI
 from dotenv import load_dotenv
 from prompts import assist_student_chatbot_prompt
-# from groq import Groq
-from openai import OpenAI
 
 load_dotenv()
 
-
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-# Initialize student chatbot prompt
-chatbot_prompt = assist_student_chatbot_prompt()
 
-def ask_openai(question, message_history):
-    message_history.append({"role": "user", "content": question})
+# Initialize system prompt
+message_history = []
+
+print("Ask your academic questions. Type 'exit' to quit.\n")
+
+while True:
+    question = input("You: ")
+    if question.lower() in ["exit", "quit"]:
+        print("Goodbye!")
+        break
+    
+    chatbot_prompt = assist_student_chatbot_prompt(message_history, question)
+
     try:
+        # Call OpenAI API
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
-            messages=message_history,
+            messages=[{"role": "user", "content": chatbot_prompt}],
             temperature=0.7,
         )
-        reply = response.choices[0].message.content.strip()
-        message_history.append({"role": "assistant", "content": reply})
-        return reply
+
+        raw_reply = response.choices[0].message.content.strip()
+        
+        # print(raw_reply)
+        # {
+        # "answer": "Hello! How can I assist you today?"
+        # }
+
+        try:
+            parsed = json.loads(raw_reply)
+            answer = parsed.get("answer", "")
+            print("\nAssistant:", answer, "\n")
+
+            message_history.append((question,answer))
+            
+            # print(message_history)
+            # [('hi', 'Hello! How can I help you today?'), ('how are yo?', "I'm just a computer program, so I don't have feelings, but I'm here to help you with any questions you may have. How can I assist you today?"), ('do you know who i am', "As an AI tutor, I don't have the ability to know personal information about individuals. However, I'm here to help you with any questions you have or topics you need assistance with.")]
+
+        except json.JSONDecodeError as e:
+            print("Failed to parse JSON:", e)
+            print("Raw response:", raw_reply)
+
     except Exception as e:
-        return f"Error: {str(e)}"
-    
-def main():
-    print(" Student AI Tutor Chatbot (type 'exit' to quit)\n")
-
-    message_history = [{"role": "system", "content": chatbot_prompt}]
-
-    opening_line = "Hey, my name is Chat AI and I am a professional personal trainer. \nI can help you get muscled up in no time."
-    print(f" Chat AI: {opening_line}")
-    message_history.append({"role": "assistant", "content": opening_line})
-
-    while True:
-        user_input = input("\n You: ")
-        if user_input.lower() in ["exit", "quit"]:
-            print("👋 Goodbye!")
-            break
-
-        answer = ask_openai(user_input, message_history)
-        print(f"\n Chat AI: {answer}")
-
-if __name__ == "__main__":
-    main()
+        print("⚠️ Error during API call:", str(e))

@@ -578,12 +578,31 @@ Rules:
     return prompt
 
 
-def assist_student_chatbot_prompt():
+def assist_student_chatbot_prompt(message_history, user_question):
+    history_text = ""
+    for q, a in message_history:
+        history_text += f"User: {q}\nAssistant: {a}\n"
+  
     prompt = f"""
 You are a helpful and friendly AI tutor.
 You assist students by answering questions clearly, step-by-step, and in simple language.
 Always explain any reasoning or logic if the question involves problem-solving or analysis.
 Be polite, concise, and educational.
+
+Important:
+Return the response in valid JSON format with the following structure:
+{{
+  "answer": "Your helpful answer here"
+}}
+
+Chat History:
+{history_text}
+
+User Question:
+{user_question}
+
+Answer
+
 """
     return prompt
 
@@ -620,6 +639,37 @@ Only return the rewritten version. Do not include formatting instructions or met
 """
     return prompt
 
+
+def build_pdf_qa_prompt(pdf_context, chat_history, user_question):
+    history_text = ""
+    for q, a in chat_history:
+        history_text += f"User: {q}\nAssistant: {a}\n"
+
+    prompt = f"""
+You are a helpful assistant.
+
+Use the given PDF context and previous chat history to answer the user’s current question clearly and concisely.
+
+Important:
+Return the response in valid JSON format with the following structure:
+{{
+  "answer": "Your helpful answer here"
+}}
+
+Ensure the output is valid JSON — no markdown, no commentary, and no backticks.
+
+PDF Context:
+\"\"\"{pdf_context}\"\"\"
+
+Chat History:
+{history_text}
+
+Current Question:
+{user_question}
+
+Answer:
+"""
+    return prompt
 
 
 # not sure if this is needed, but keeping it for now

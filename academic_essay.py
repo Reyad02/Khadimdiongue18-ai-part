@@ -11,7 +11,7 @@ load_dotenv()
 academic_essay_generator_prompt = academic_essay_generator_text(title="The Role of Renewable Energy in Combating Climate Change",
                                                 keywords=["renewable energy", "carbon emissions", "climate change"],
                                                 num_of_results=2,
-                                                estimated_result_length=150)
+                                                estimated_result_length=100)
 
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
