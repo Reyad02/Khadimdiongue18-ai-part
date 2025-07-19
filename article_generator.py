@@ -1,9 +1,6 @@
 from dotenv import load_dotenv
-# from groq import Groq
-# import json
+import json
 import os
-# import re
-# from groq import Groq
 from prompts import article_generator_text
 from openai import OpenAI
 
@@ -14,7 +11,7 @@ load_dotenv()
 article_generator_prompt = article_generator_text(title="The Benefits of Meditation for Mental Health", 
                                                 keywords=["meditation", "mental clarity", "stress relief", "mindfulness"],
                                                 num_of_results=2,
-                                                estimated_result_length=100)
+                                                estimated_result_length=800)
 
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -29,5 +26,21 @@ response = client.chat.completions.create(
     temperature=0.7,
 )
     
-print(response.choices[0].message.content)
+
+raw_output = response.choices[0].message.content
+
+try:
+    parsed = json.loads(raw_output)
+
+    # Recalculate word count for each article
+    for article in parsed["articles"]:
+        content = article["content"]
+        word_count = len(content.split())
+        article["word_count"] = word_count
+
+    print(json.dumps(parsed, indent=2))
+
+except json.JSONDecodeError as e:
+    print("Failed to parse JSON:", e)
+    print("Raw response:", raw_output)
 

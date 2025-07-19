@@ -1,9 +1,7 @@
 from dotenv import load_dotenv
-# import json
+import json
 from openai import OpenAI
 import os
-# import re
-# from groq import Groq
 from prompts import summarize_text_2nd_grade
 
 
@@ -39,19 +37,20 @@ response = client.chat.completions.create(
     temperature=0.7
 )
 
-# print(response)
+raw_output = response.choices[0].message.content
 
-# client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-# response = client.chat.completions.create(
-#     model="meta-llama/llama-4-scout-17b-16e-instruct",
-#     messages=[
-#       {
-#         "role": "user",
-#         "content": summarize_text_2nd_grade_prompt
-#       }
-#     ],
-#     temperature=0.7,
-# )
-    
-print(response.choices[0].message.content)
+try:
+    parsed = json.loads(raw_output)
+
+    # Recalculate word count for each content
+    for content in parsed["summary"]:
+        item = content["content"]
+        word_count = len(item.split())
+        content["word_count"] = word_count
+
+    print(json.dumps(parsed, indent=2))
+
+except json.JSONDecodeError as e:
+    print("Failed to parse JSON:", e)
+    print("Raw response:", raw_output)
 

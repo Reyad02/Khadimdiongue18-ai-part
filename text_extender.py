@@ -1,9 +1,6 @@
 from dotenv import load_dotenv
-# from groq import Groq
-# import json
+import json
 import os
-# import re
-# from groq import Groq
 from prompts import text_extender
 from openai import OpenAI
 
@@ -29,5 +26,19 @@ response = client.chat.completions.create(
     temperature=0.7,
 )
     
-print(response.choices[0].message.content)
+raw_output = response.choices[0].message.content
 
+try:
+    parsed = json.loads(raw_output)
+
+    # Recalculate word count for each summary
+    for text in parsed["extended_texts"]:
+        content = text["content"]
+        word_count = len(content.split())
+        text["word_count"] = word_count
+
+    print(json.dumps(parsed, indent=2))
+
+except json.JSONDecodeError as e:
+    print("Failed to parse JSON:", e)
+    print("Raw response:", raw_output)

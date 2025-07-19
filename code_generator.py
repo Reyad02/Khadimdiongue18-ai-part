@@ -1,9 +1,5 @@
 from dotenv import load_dotenv
-# from groq import Groq
-# import json
 import os
-# import re
-# from groq import Groq
 from prompts import ai_code_generetor
 from openai import OpenAI
 

@@ -1,9 +1,6 @@
 from dotenv import load_dotenv
-# from groq import Groq
-# import json
+import json
 import os
-# import re
-# from groq import Groq
 from prompts import humanizer_prompt
 from openai import OpenAI
 
@@ -24,5 +21,17 @@ response = client.chat.completions.create(
     temperature=0.7,
 )
     
-print(response.choices[0].message.content)
+raw_output = response.choices[0].message.content
+
+try:
+    parsed = json.loads(raw_output)
+
+    word_count = len(parsed["humanized_text"].split())
+    parsed["word_count"] = word_count
+
+    print(json.dumps(parsed, indent=2))
+
+except json.JSONDecodeError as e:
+    print("Failed to parse JSON:", e)
+    print("Raw response:", raw_output)
 

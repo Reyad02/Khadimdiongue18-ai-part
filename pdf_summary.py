@@ -1,9 +1,5 @@
 from dotenv import load_dotenv
-# from groq import Groq
-# import json
 import os
-# import re
-# from groq import Groq
 from extract_data import extract_text_from_pdf
 from prompts import summarize_text, pagewise_summarize_text
 from openai import OpenAI
@@ -31,6 +27,25 @@ response = client.chat.completions.create(
     ],
     temperature=0.7,
 )
-# print(json.loads(response.choices[0].message.content))
-print(response.choices[0].message.content)
+raw_output = response.choices[0].message.content
+
+try:
+    parsed = json.loads(raw_output)
+
+    # Recalculate word count for each content
+    total_words = 0
+    for item in parsed["summary"]:
+        word_count = len(item["details"].split())
+        item["word_count"] = word_count
+        total_words += word_count
+
+    parsed["total_word_count"] = total_words
+
+    print(json.dumps(parsed, indent=2))
+
+except json.JSONDecodeError as e:
+    print("Failed to parse JSON:", e)
+    print("Raw response:", raw_output)
+
+
 

@@ -1,9 +1,7 @@
 from dotenv import load_dotenv
-# import json
+import json
 from openai import OpenAI
 import os
-# import re
-# from groq import Groq
 from prompts import summarize_text
 
 
@@ -24,10 +22,9 @@ Still, AI raises important ethical concerns. Issues like privacy, bias in algori
 In summary, AI is transforming work—bringing both opportunities and challenges. Success in this new era depends on continuous learning, ethical awareness, and using AI to complement—not replace—human skills."""
 
 
-# prompt for summary 
 summarize_text_prompt = summarize_text(text=text_to_summarize,
                                                 num_of_results=2,
-                                                estimated_result_length=100)
+                                                estimated_result_length=500)
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -39,6 +36,21 @@ response = client.chat.completions.create(
     temperature=0.7
 )
 
-    
-print(response.choices[0].message.content)
+
+raw_output = response.choices[0].message.content
+
+try:
+    parsed = json.loads(raw_output)
+
+    # Recalculate word count for each summary
+    for summary in parsed["summaries"]:
+        content = summary["content"]
+        word_count = len(content.split())
+        summary["word_count"] = word_count
+
+    print(json.dumps(parsed, indent=2))
+
+except json.JSONDecodeError as e:
+    print("Failed to parse JSON:", e)
+    print("Raw response:", raw_output)
 

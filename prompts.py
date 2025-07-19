@@ -1,49 +1,76 @@
+def generate_thesis(topic_description: str) -> str:
+    prompt = f"""
+You are an expert academic researcher and thesis writer. Your task is to write a complete, well-structured, 50-page thesis paper based on the following short topic description.
+
+-------------------------
+Topic Description:
+"{topic_description}"
+-------------------------
+
+Thesis Requirements:
+- The thesis must follow proper academic structure:
+  1. Abstract (1 page)
+  2. Introduction (3–4 pages)
+  3. Literature Review (6–8 pages)
+  4. Methodology (10–12 pages)
+  5. Experimental Setup and Implementation (6–8 pages)
+  6. Results and Evaluation (5–7 pages)
+  7. Discussion (3–4 pages)
+  8. Societal & Economic Impact (2–3 pages)
+  9. Conclusion & Future Work (2–3 pages)
+  10. References (3–5 pages)
+  11. Appendices (5+ pages)
+  
+- Use formal academic tone and language
+- Include relevant technical details, comparisons, and explanations
+- Use dummy citations or real ones where necessary (APA style)
+- Assume a publicly available dataset is used (e.g., from Kaggle)
+- Include mention of tools like Python, TensorFlow/PyTorch
+- Results should reflect realistic performance metrics (e.g., 95–99% accuracy)
+- Include figures/tables placeholders where appropriate (e.g., [Figure 1: Sample fecal image])
+
+Now, generate the full 50-page thesis accordingly.
+"""
+    return prompt
+
+
 def summarize_text(text, num_of_results, estimated_result_length=2000):
     prompt = f"""
-You are a knowledgeable and detail-oriented AI tutor trained to help students understand complex academic texts, educational articles, and study materials.
+You are an expert AI text summarizer.
 
-Your task is to generate **{num_of_results} in-depth, educational summaries** of the content provided below. These summaries will be used to create multiple-choice questions, so they must cover **every key detail** and explanation necessary for understanding the material.
+Summarize the following content by highlighting the key points, main arguments, and conclusion in a clear and structured manner.
 
-Goals:
-1. Extract and explain all main ideas, facts, and supporting points.
-2. Include names, figures, dates, definitions, and technical terms accurately.
-3. Provide **section-wise or paragraph-wise summaries** if the content is structured that way.
-4. Maintain a **logical, easy-to-follow flow** suitable for students.
-5. Use clear, academic language — but explain complex terms or ideas briefly where helpful.
-6. Avoid personal opinions, fluff, or repetition.
+Each summary should preserve the logic of the original text and be written in an academic, easy-to-understand style suitable for students.
 
----
-
-Original Educational Content:
+------------------------------
+Original Text:
 \"\"\"{text}\"\"\"
 
----
+Number of Summaries: {num_of_results}
+Target Length per Summary: ~{estimated_result_length} words
+------------------------------
 
+Guidelines:
+1. Extract all essential facts, ideas, and supporting arguments.
+2. Maintain logical structure — if the original content is sectioned, follow that flow.
+3. Avoid personal opinions, unnecessary repetition, or fluff.
+4. Use clear and concise language that is informative and educational.
+5. Each version must be unique in phrasing and structure.
 
 Output Format:
-Return the response as a **JSON object** in the following format:
+Return your output as a valid JSON object with this structure:
 
 {{
-  "Summary": [
+  "summaries": [
     {{
-      "version 1": "Rewritten version 1 here (exactly {estimated_result_length} words)"
+      "version": 1,
+      "content": "Summary version 1 here (approx. {estimated_result_length} words)"
     }},
-    {{
-      "version 2": "Rewritten version 2 here (exactly {estimated_result_length} words)"
-    }}
-    // ... repeat if more versions
+    // ... more if applicable
   ]
 }}
 
-DO NOT include markdown backticks, commentary, or explanations. Only return valid JSON.
-- Each version must:
-  - Be distinct in structure and wording (paraphrased).
-  - Include **all** necessary facts and ideas.
-  - Be around **{estimated_result_length} words**.
-- Do **not** include explanations, commentary, or anything outside the summary content.
-- Make sure each summary is suitable for **later use in generating exam-style MCQs**.
-
- Begin generating the summaries below:
+Only return the JSON. Do not include markdown, commentary, or explanations.
 """
     return prompt
 
@@ -86,37 +113,34 @@ DO NOT include markdown backticks, commentary, or explanations. Only return vali
 
 def ai_code_generetor(programming_language, instructions):
     prompt = f"""
-You are an expert AI coding assistant specialized in writing production-quality code in various programming languages.
+You are an expert AI coding assistant.
 
- Your task is to generate a fully functional, clean, and optimized code snippet written in **{programming_language}** that satisfies the following user instructions.
+Write a complete, functional code in **{programming_language}** that performs the following task:
+
+\"\"\"{instructions}\"\"\"
+
+Include helpful comments for each step to explain the logic clearly.
 
 ------------------------------
- **Programming Language**: {programming_language}
- **User Instructions**:
-{instructions}
-------------------------------
 
- Output Requirements:
-1. Write clean, modular, and efficient code.
-2. Include helpful inline comments to explain non-trivial parts.
-3. Use meaningful variable and function names.
-4. Follow standard style conventions for {programming_language}.
-5. If relevant, include sample input/output or test case examples.
-6. Do **not** include any explanations — just return the code block only.
-7. If the instruction is ambiguous, make reasonable assumptions and proceed.
+Requirements:
+1. Use clean, modular, and efficient code.
+2. Add inline comments to explain each logical step clearly.
+3. Use clear, meaningful variable and function names.
+4. Follow the standard coding style for {programming_language}.
+5. If helpful, include a sample input/output or test case.
+6. Do NOT include any explanations outside of the code.
+7. Assume any missing details if necessary — but stay focused on the core task.
 
- Think step-by-step before writing the code.
- 
-Output Format (JSON):
-Return your output as a **JSON object** in the following format:
+Output Format:
+Return your output as a valid JSON object in the following format:
 
 {{
   "language": "{programming_language}",
-  "code": "<entire code as a string here>"
+  "code": "<full code with inline comments>"
 }}
 
-DO NOT include markdown backticks, commentary, or explanations. Only return valid JSON.
-
+Only return the JSON object. Do NOT include markdown, commentary, or extra formatting.
 """
     return prompt
 
@@ -145,12 +169,14 @@ Output Format:
 Return the response as a **JSON object** in the following format:
 
 {{
-  "content": [
+  "contents": [
     {{
-      "version 1": "Rewritten version 1 here (exactly {estimated_result_length} words)"
+      "version": "1",
+      "content": "Rewritten version 1 here (exactly {estimated_result_length} words)"
     }},
     {{
-      "version 2": "Rewritten version 2 here (exactly {estimated_result_length} words)"
+      "version": "2",
+      "content": "Rewritten version 2 here (exactly {estimated_result_length} words)"
     }}
     // ... repeat if more versions
   ]
@@ -160,55 +186,36 @@ DO NOT include markdown backticks, commentary, or explanations. Only return vali
 """ 
     return prompt
 
-
+    
 def article_generator_text(title, keywords=[], num_of_results=1, estimated_result_length=1000):
     keyword_str = ", ".join(keywords) if isinstance(keywords, list) else str(keywords)
 
     prompt = f"""
-You are a professional SEO content writer and blog article generator.
+You are an expert AI content generator.
 
-Your task is to write **{num_of_results} high-quality, unique article version(s)** based on the provided title and keywords. Each article must be **exactly {estimated_result_length} words long** — not more, not less.
+Generate {num_of_results} unique article version(s) based on the topic "{title}" and keywords "{keyword_str}".
 
-------------------------------
-**Title**: {title}  
-**Target Keywords**: {keyword_str}  
-**Required Word Count per Article**: Exactly {estimated_result_length} words  
-**Number of Article Versions Needed**: {num_of_results}
-------------------------------
+Each article should be approximately {estimated_result_length} words long and include a strong introduction, structured body paragraphs, and a concise conclusion.
 
-📌 Article Guidelines:
-1. Write exactly **{num_of_results}** unique article version(s) — each one must follow the required word count strictly.
-2. Naturally incorporate the target keywords throughout the content.
-3. Structure each article with:
-   - A **Compelling Introduction**
-   - A **Well-organized Body** (use H2/H3-style logic internally, no markdown)
-   - A **Strong Conclusion**
-4. Write in a clear, engaging, informative, and SEO-friendly tone.
-5. Do **not** include extra formatting like markdown, commentary, or explanations.
-6. Do **not** exceed or fall short of the required word count.
-7. Output must be returned as a **valid JSON object** with this structure:
+Write in a clear, engaging, and informative style suitable for SEO.
+
+Return the results as a valid JSON object with this structure:
 
 {{
   "articles": [
     {{
       "version": 1,
       "title": "{title}",
-      "content": "Full article here (exactly {estimated_result_length} words)"
+      "content": "Full article here (approx. {estimated_result_length} words)"
     }},
-    {{
-      "version": 2,
-      "title": "{title}",
-      "content": "Second version article here"
-    }}
-    // ... continue if more versions
+    // ... more if applicable
   ]
 }}
 
-DO NOT include markdown backticks, commentary, or explanations. Only return valid JSON.
-
+Do NOT include markdown, explanations, or anything except the JSON.
 """
     return prompt
-    
+
 
 def paragraph_generator_text(paragraph_description, keywords=[], num_of_results=1, estimated_result_length=200):
     keyword_str = ", ".join(keywords) if isinstance(keywords, list) else str(keywords)
@@ -413,32 +420,22 @@ def grammar_checker(text, num_of_results, estimated_result_length=2000):
     prompt = f"""
 You are an expert grammar correction assistant.
 
- Your task is to review and correct **all types of grammar mistakes** in the following text. This includes but is not limited to:
-- Subject-verb agreement
-- Verb tense consistency
-- Article usage
-- Prepositions
-- Sentence fragments or run-ons
-- Word order
-- Modifier placement
-- Singular/plural agreement
-- Capitalization and punctuation
+Automatically correct all spelling, grammar, conjugation, and syntax errors in the following text while preserving the writing style and meaning.
 
 ------------------------------
- **Original Text**:
+Original Text:
 \"\"\"{text}\"\"\"
 
- **Number of Corrected Versions Required**: {num_of_results}
+Number of Corrected Versions Required: {num_of_results}
 ------------------------------
 
- **Correction Rules**:
-1. Correct **all grammatical, spelling, and punctuation issues**.
-2. DO NOT change tone, wording, meaning, or structure unless necessary for correctness.
-3. Keep the content as close to the original as possible.
-4. If multiple versions are requested, all should follow the same correction principles.
+Correction Rules:
+1. Correct all grammatical, spelling, and punctuation mistakes.
+2. Preserve the original tone, wording, meaning, and structure unless changes are absolutely necessary for correctness.
+3. If multiple versions are requested, ensure all versions follow the same principles.
 
 Output Format:
-Return your output as a **valid JSON object** with this structure:
+Return your output as a valid JSON object structured as follows:
 
 {{
   "corrections": [
@@ -454,7 +451,7 @@ Return your output as a **valid JSON object** with this structure:
   ]
 }}
 
- Do NOT include explanations, highlights, or comments — return only the clean corrected version(s).
+Do NOT include explanations, highlights, or comments — return only the clean corrected version(s).
 """
     return prompt
 
@@ -521,46 +518,62 @@ Return your output as a **valid JSON object** with this structure:
 
 def exercise_corrector_prompt(text, num_of_results, estimated_result_length=2000):
     prompt = f"""
-You are a smart and helpful AI assistant designed to correct student-written responses.
+You are an expert AI assistant that reviews and corrects student responses to exercises, including multiple-choice, calculations, essays, and short answers.
 
-Your task is to carefully review and improve the following exercise submission, ensuring it is grammatically correct, factually accurate, and easy for the student to learn from.
+Your task is to:
+- Provide a corrected version of the student's response.
+- Explain all corrections **thoroughly and step by step** using clear, precise pedagogical reasoning.
 
 ------------------------------
- **Student Response**:
-{text}
- **Number of Corrected Versions Required**: {num_of_results}
- **Estimated Length per Version**: ~{estimated_result_length} words
+Student Response:
+\"\"\"{text}\"\"\"
+
+Number of Corrected Versions Required: {num_of_results}
+Estimated Length per Version: ~{estimated_result_length} words
 ------------------------------
 
- **Correction Guidelines**:
-1. Correct all **grammar, spelling, punctuation, and sentence structure issues**.
-2. Check the **factual accuracy** of the content (based on subject: e.g., math, history, science).
-3. Include a **brief explanation** of the mistakes in a way the student can understand.
-4. Return **{num_of_results} corrected version(s)** of the exercise, each clearly labeled.
-5. Be friendly, supportive, and focused on **learning and clarity**.
-6. Keep each version close to **{estimated_result_length} words** (±5% allowed).
+Correction Guidelines:
+1. Correct all types of errors: grammar, spelling, punctuation, structure, logic, factual mistakes, and misconceptions.
+2. For each version, include a "corrected_text" (the revised student response).
+3. Then include a "steps" list:
+   - Each step must explain:
+     - What was incorrect.
+     - What it was changed to.
+     - Why the correction was necessary — with pedagogical justification (explain the rule or logic clearly, like teaching the student).
+4. Do not change the original intent of the response unless factual accuracy requires it.
+5. Ensure each version is phrased slightly differently while delivering the same core corrections.
+6. Use a supportive, clear, and teacher-like tone focused on helping the student learn.
 
-Output Format:  
-Return your output as a **valid JSON object** structured as follows:
+Output Format:
+Return your output as a valid JSON object with this exact structure:
 
 {{
   "corrections": [
     {{
       "version": 1,
-      "correction_summary": "Brief explanation of mistakes fixed here.",
-      "corrected_text": "Corrected version 1 text here."
+      "corrected_text": "Fully corrected version here.",
+      "steps": [
+        {{
+          "original": "Original text fragment.",
+          "correction": "Corrected version.",
+          "explanation": "Pedagogical reasoning for this change."
+        }},
+        ...
+      ]
     }},
     {{
       "version": 2,
-      "correction_summary": "Brief explanation of mistakes fixed here.",
-      "corrected_text": "Corrected version 2 text here."
+      "corrected_text": "Alternative corrected version.",
+      "steps": [
+        ...
+      ]
     }}
-    // ... more if applicable
   ]
 }}
 
- Do NOT change the original meaning or add new ideas unless correcting factual mistakes.
- Do NOT include instructions or formatting explanations — only return the results.
+Rules:
+- Do NOT include any extra comments, markdown formatting, or instructions.
+- ONLY return the JSON object in the specified structure.
 """
     return prompt
 

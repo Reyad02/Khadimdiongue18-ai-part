@@ -25,7 +25,7 @@ def ask_openai(question, message_history):
         return reply
     except Exception as e:
         return f"Error: {str(e)}"
-
+    
 def main():
     print(" Student AI Tutor Chatbot (type 'exit' to quit)\n")
 
