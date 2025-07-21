@@ -1,54 +1,80 @@
 import os
 import json
+import uuid
 from openai import OpenAI
 from dotenv import load_dotenv
-from prompts import assist_student_chatbot_prompt
+from prompts import assist_student_chatbot_prompt  
 
 load_dotenv()
-
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Initialize system prompt
-message_history = []
+HISTORY_FILE = "chat_history.json"
 
-print("Ask your academic questions. Type 'exit' to quit.\n")
+def load_histories():
+    if os.path.exists(HISTORY_FILE):
+        with open(HISTORY_FILE, "r") as f:
+            return json.load(f)
+    return {}
 
-while True:
-    question = input("You: ")
-    if question.lower() in ["exit", "quit"]:
-        print("Goodbye!")
-        break
-    
-    chatbot_prompt = assist_student_chatbot_prompt(message_history, question)
+def save_histories(histories):
+    with open(HISTORY_FILE, "w") as f:
+        json.dump(histories, f, indent=2)
+        
+def retrieve_history(session_id):
+    all_histories = load_histories()
+    return all_histories.get(session_id, [])
+
+def handle_question(question, session_id=None):
+    all_histories = load_histories()
+
+    # Create session ID if not given
+    if not session_id:
+        session_id = str(uuid.uuid4())
+        print(f"Generated new Session ID: {session_id}")
+
+    message_history = retrieve_history(session_id)
+    message_history.append({"role": "user", "content": question})
+    full_prompt = assist_student_chatbot_prompt(message_history, question)
 
     try:
-        # Call OpenAI API
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": chatbot_prompt}],
-            temperature=0.7,
+            messages=[
+                {"role": "user", "content": full_prompt}
+            ],
+            temperature=0.7
         )
 
-        raw_reply = response.choices[0].message.content.strip()
-        
-        # print(raw_reply)
-        # {
-        # "answer": "Hello! How can I assist you today?"
-        # }
+        raw_json = response.choices[0].message.content.strip()
 
         try:
-            parsed = json.loads(raw_reply)
-            answer = parsed.get("answer", "")
-            print("\nAssistant:", answer, "\n")
+            parsed = json.loads(raw_json)
+            answer = parsed.get("answer", "No 'answer' key in JSON.")
+        except json.JSONDecodeError:
+            answer = f"Failed to parse JSON: {raw_json}"
 
-            message_history.append((question,answer))
-            
-            # print(message_history)
-            # [('hi', 'Hello! How can I help you today?'), ('how are yo?', "I'm just a computer program, so I don't have feelings, but I'm here to help you with any questions you may have. How can I assist you today?"), ('do you know who i am', "As an AI tutor, I don't have the ability to know personal information about individuals. However, I'm here to help you with any questions you have or topics you need assistance with.")]
+        message_history.append({"role": "assistant", "content": answer})
 
-        except json.JSONDecodeError as e:
-            print("Failed to parse JSON:", e)
-            print("Raw response:", raw_reply)
+        all_histories[session_id] = message_history
+        save_histories(all_histories)
+
+        return {
+            "session_id": session_id,
+            "question": question,
+            "answer": answer,
+            # "raw_json": raw_json,
+            # "history": message_history
+        }
 
     except Exception as e:
-        print("⚠️ Error during API call:", str(e))
+        return {
+            "session_id": session_id,
+            "error": str(e)
+        }
+
+if __name__ == "__main__":
+    question = input("Your question: ").strip()
+    session_id = input("Session ID (optional): ").strip() or None
+
+    result = handle_question(question, session_id)
+    print(json.dumps(result, indent=2))

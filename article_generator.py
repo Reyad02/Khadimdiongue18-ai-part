@@ -11,12 +11,22 @@ load_dotenv()
 article_generator_prompt = article_generator_text(title="The Benefits of Meditation for Mental Health", 
                                                 keywords=["meditation", "mental clarity", "stress relief", "mindfulness"],
                                                 num_of_results=2,
-                                                estimated_result_length=800)
+                                                estimated_result_length=350)
 
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 response = client.chat.completions.create(
-    model="gpt-3.5-turbo",
+    # model="gpt-3.5-turbo",
+    # $0.5 • $1.5
+    # Input • Output
+    
+    # model="gpt-4-turbo-2024-04-09",
+    # $10 • $30
+    # Input • Output
+    
+    model="gpt-4o-2024-08-06",
+    # $2.5 • $10
+    # Input • Output
     messages=[
       {
         "role": "user",

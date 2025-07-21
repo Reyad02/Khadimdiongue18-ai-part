@@ -427,6 +427,7 @@ Original Text:
 \"\"\"{text}\"\"\"
 
 Number of Corrected Versions Required: {num_of_results}
+Estimated Length per Version: ~{estimated_result_length} words
 ------------------------------
 
 Correction Rules:
@@ -579,9 +580,9 @@ Rules:
 
 
 def assist_student_chatbot_prompt(message_history, user_question):
-    history_text = ""
-    for q, a in message_history:
-        history_text += f"User: {q}\nAssistant: {a}\n"
+    # history_text = ""
+    # for q, a in message_history:
+    #     history_text += f"User: {q}\nAssistant: {a}\n"
   
     prompt = f"""
 You are a helpful and friendly AI tutor.
@@ -596,7 +597,7 @@ Return the response in valid JSON format with the following structure:
 }}
 
 Chat History:
-{history_text}
+{message_history}
 
 User Question:
 {user_question}
@@ -641,9 +642,9 @@ Only return the rewritten version. Do not include formatting instructions or met
 
 
 def build_pdf_qa_prompt(pdf_context, chat_history, user_question):
-    history_text = ""
-    for q, a in chat_history:
-        history_text += f"User: {q}\nAssistant: {a}\n"
+    # history_text = ""
+    # for q, a in chat_history:
+    #     history_text += f"User: {q}\nAssistant: {a}\n"
 
     prompt = f"""
 You are a helpful assistant.
@@ -662,7 +663,7 @@ PDF Context:
 \"\"\"{pdf_context}\"\"\"
 
 Chat History:
-{history_text}
+{chat_history}
 
 Current Question:
 {user_question}
