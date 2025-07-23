@@ -137,10 +137,14 @@ Return your output as a valid JSON object in the following format:
 
 {{
   "language": "{programming_language}",
-  "code": "<full code with inline comments>"
+  "code": "<escaped full code here>"
 }}
 
-Only return the JSON object. Do NOT include markdown, commentary, or extra formatting.
+Important:
+- Escape all double quotes inside the code with a backslash (\\").
+- Escape all newlines as \\n.
+- The entire code must be in a single-line JSON string value.
+- Do NOT include markdown, explanations, or formatting outside the JSON object.
 """
     return prompt
 
